@@ -6,9 +6,20 @@ namespace MailSender.Contracts.Types
 {
     public abstract class Singleton<T> where T: new()
     {
-        private static T instance;
+
+        #region ..Constructor..
 
         protected Singleton() { }
+
+        #endregion
+
+        #region ..Fields..
+
+        private static T instance;
+
+        #endregion
+
+        #region ..Properties..
 
         public static T Instance
         {
@@ -21,5 +32,8 @@ namespace MailSender.Contracts.Types
                 return instance;
             }
         }
+
+        #endregion
+
     }
 }

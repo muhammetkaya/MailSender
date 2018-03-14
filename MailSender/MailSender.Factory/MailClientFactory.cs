@@ -52,5 +52,6 @@ namespace MailSender.Clients.Factory
         }
 
         #endregion
+
     }
 }

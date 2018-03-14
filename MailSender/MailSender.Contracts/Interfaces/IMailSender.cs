@@ -7,7 +7,7 @@ namespace MailSender.Contracts.Interfaces
 {
     public interface IMailSender
     {
-        void InitializeClient(CredentialSettings Credential);
+        void InitializeClient(MailSettings Credential);
 
         void SendMail(MailInfo MailInfo);
     }
