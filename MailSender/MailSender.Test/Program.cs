@@ -1,8 +1,11 @@
-﻿using MailSender.Clients.Factory;
-using MailSender.Contracts.Enums;
+﻿using MailSender.Contracts.Enums;
 using MailSender.Contracts.Interfaces;
 using MailSender.Contracts.Types;
+using MailSender.Factory;
+using MailSender.Logic.Managers;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.IO;
 
 namespace MailSender.Test
 {
@@ -11,39 +14,48 @@ namespace MailSender.Test
 
         static void Main(string[] args)
         {
-            MailClientFactory MyMailClientFactory = new MailClientFactory();
+            string path = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\"));
+            string filename = "AppSettings.json";
 
-            var exchangeMailSender = MyMailClientFactory.GetMailSender(eMailClientType.Exchange);
-            var smtpMailSender = MyMailClientFactory.GetMailSender(eMailClientType.Smtp);
+            MailSettingsManager mailSettingsManager = new MailSettingsManager(path, filename);
+            MailClientFactory myMailClientFactory = new MailClientFactory();
+
+            var exchangeMailSender = myMailClientFactory.GetMailSender(eMailClientType.Exchange);
+            var smtpMailSender = myMailClientFactory.GetMailSender(eMailClientType.Smtp);
 
             //Mail will be sended with Exchange Server
-            SendMail(exchangeMailSender);
+            //SendMail(exchangeMailSender, mailSettingsManager.GetMailSettings(eMailClientType.Exchange));
 
             //Mail will be sended with Smptp Server
-            SendMail(smtpMailSender);
+            SendMail(smtpMailSender, mailSettingsManager.GetMailSettings(eMailClientType.Smtp));
         }
 
-        private static void SendMail(IMailSender mailSender)
+        private static void SendMail(IMailSender mailSender, MailSettings credentialSettings)
         {
             MailInfo mailInfo = new MailInfo()
             {
+                From = "Muhammet Kaya",
                 Body = "This is test body.",
                 Subject = "This Test Mail",
                 IsBodyHtml = false,
                 IsDeliveryReceiptRequest = true,
                 IsReadReceiptRequest = true,
-                ToReceipts = new string[] { "mami3509@gmail.com" }
+                ToRecipients = new string[] { "muhammetkaya3509@hotmail.com" }
             };
 
-            MailSettings credentialSettings = new MailSettings()
-            {
-
-            };
 
             //Client is initializing
             mailSender.InitializeClient(credentialSettings);
             //Mail is sending
             mailSender.SendMail(mailInfo);
+        }
+
+        private static void GetSettings()
+        {
+            var builder = new ConfigurationBuilder()
+                             .SetBasePath(Directory.GetCurrentDirectory())
+                             .AddJsonFile("appsettings.json");
+
         }
 
     }

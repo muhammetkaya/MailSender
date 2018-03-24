@@ -19,11 +19,11 @@ namespace MailSender.Contracts.Types
         #region ..Properties..
         public string From { get; set; }
 
-        public string[] ToReceipts { get; set; }
+        public string[] ToRecipients { get; set; }
 
-        public string[] CcReceipts { get; set; }
+        public string[] CcRecipients { get; set; }
 
-        public string[] BccReceipts { get; set; }
+        public string[] BccRecipients { get; set; }
 
         public string Subject { get; set; }
 

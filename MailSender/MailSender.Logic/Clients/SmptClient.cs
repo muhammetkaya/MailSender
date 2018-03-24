@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 
-namespace MailSender.Clients.Managers
+namespace MailSender.Logic.Clients
 {
     public class SmptClient : Singleton<SmptClient>, IMailSender
     {
@@ -15,6 +15,7 @@ namespace MailSender.Clients.Managers
         #region ..Fields..
 
         SmtpClient client;
+        MailSettings _settings;
 
         #endregion
 
@@ -29,13 +30,14 @@ namespace MailSender.Clients.Managers
 
         #region IMailSender Implementations
 
-        public void InitializeClient(MailSettings Credential)
+        public void InitializeClient(MailSettings settings)
         {
-            client.Credentials = new NetworkCredential(Credential.Usermail, Credential.Password, Credential.Domain);
+            _settings = settings;
+            client.Credentials = new NetworkCredential(settings.Usermail, settings.Password, settings.Domain);
 
-            client.Port = Credential.Port;
-            client.Host = Credential.Url;
-            client.EnableSsl = Credential.EnableSsl;
+            client.Port = settings.Port;
+            client.Host = settings.Url;
+            client.EnableSsl = settings.EnableSsl;
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
         }
 
@@ -45,40 +47,38 @@ namespace MailSender.Clients.Managers
             {
                 MailMessage message = new MailMessage()
                 {
-                    From = new MailAddress(MailInfo.From),
+                    From = new MailAddress(_settings.Usermail),
                     Subject = MailInfo.Subject,
                     Body = MailInfo.Body,
-                    IsBodyHtml = MailInfo.IsBodyHtml,
-                    DeliveryNotificationOptions = MailInfo.IsDeliveryReceiptRequest ? DeliveryNotificationOptions.OnSuccess |
-                                                                                      DeliveryNotificationOptions.OnFailure |
-                                                                                      DeliveryNotificationOptions.Delay : DeliveryNotificationOptions.OnFailure
+                    IsBodyHtml = MailInfo.IsBodyHtml
                 };
 
                 if (MailInfo.IsReadReceiptRequest)
-                    message.Headers.Add("You Can add to Header", "value");// for read
-
-                //Adding Mail Addresses
+                {
+                    message.DeliveryNotificationOptions = DeliveryNotificationOptions.OnSuccess | DeliveryNotificationOptions.OnFailure | DeliveryNotificationOptions.Delay;
+                    message.Headers.Add("Return-Receipt-To", _settings.Usermail);
+                }
 
                 //Warning: If you add mail address as string, delivery notification cant arrive to from mail. It types must MailAddress.
-                if (MailInfo.ToReceipts != null)
+                if (MailInfo.ToRecipients != null)
                 {
-                    MailInfo.ToReceipts.ToList().ForEach(to =>
+                    MailInfo.ToRecipients.ToList().ForEach(to =>
                     {
                         message.To.Add(new MailAddress(to));
                     });
                 }
 
-                if (MailInfo.CcReceipts != null)
+                if (MailInfo.CcRecipients != null)
                 {
-                    MailInfo.CcReceipts.ToList().ForEach(cc =>
+                    MailInfo.CcRecipients.ToList().ForEach(cc =>
                     {
                         message.CC.Add(new MailAddress(cc));
                     });
                 }
 
-                if (MailInfo.BccReceipts != null)
+                if (MailInfo.BccRecipients != null)
                 {
-                    MailInfo.BccReceipts.ToList().ForEach(Bcc =>
+                    MailInfo.BccRecipients.ToList().ForEach(Bcc =>
                     {
                         message.Bcc.Add(new MailAddress(Bcc));
                     });

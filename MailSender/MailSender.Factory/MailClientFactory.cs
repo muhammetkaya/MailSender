@@ -1,11 +1,11 @@
-﻿using MailSender.Clients.Managers;
+﻿using MailSender.Logic.Clients;
 using MailSender.Contracts.Enums;
 using MailSender.Contracts.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MailSender.Clients.Factory
+namespace MailSender.Factory
 {
     public class MailClientFactory
     {
